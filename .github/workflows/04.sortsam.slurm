@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=compute
-#SBATCH -t 24:00:00
+#SBATCH -t 2:00:00
 #SBATCH --mem=20G
 #SBATCH -c 2
 #SBATCH --job-name=SortSam
