@@ -1,75 +1,44 @@
 #!/bin/bash
 #SBATCH --partition=compute
-#SBATCH -t 32:00:00
-#SBATCH --mem=20G
-#SBATCH -c 2
-#SBATCH --job-name=MarkDup
-#SBATCH --output=outscripts/MarkDup_%a.out
-#SBATCH --error=outscripts/MarkDup_%a.err
-#SBATCH --mail-type=ALL
+#SBATCH -t 24:00:00
+#SBATCH --mem=80G
+#SBATCH -c 10
+#SBATCH --job-name=markdup.L
+#SBATCH --output=markdup.L.%j.out
+#SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=jann.zwahlen@oist.jp
 
-##############################
-# Argument to pass:
-SampleList=${1-AllSamples.txt}                  # Name of the file with sample names. Default: AllSamples.txt
-workindir=${2-.}                                # Working directory. Default: Current Directory
-inDir=${3-05_sort}                   # Name of the directory with the input mapping files (should be in workindir)
-outDir=${4-06_sort.dup} 
-##############################
+module load picard/2.7.0
 
+inDir=/flash/LaudetU/Jann/Salamin_sequences/05_sort
+outDir=/flash/LaudetU/Jann/Salamin_sequences/06_sort.dup
 
-############################################################
-## Relaunch the script as array with the number of jobs corresponding to the number of files
-nline=$(wc -l $SampleList | awk '{print $1}')
+# Set the number of jobs you want to run in parallel (adjust as needed)
+num_parallel=10
 
+# Function to run markdup on a single sample
+process_sample() {
+    sample_id=$1
+    java -jar /apps/free81/picard/2.7.0/bin/picard.jar MarkDuplicates \
+            REMOVE_DUPLICATES=TRUE \
+            I=${inDir}/${sample_id}.sorted.bam \
+            O=${outDir}/${sample_id}.sorted.dup.bam \
+            METRICS_FILE=${outDir}/${sample_id}.dup.metrics \
+            CREATE_INDEX=true
+}
 
-if [[ "$SLURM_ARRAY_TASK_ID" == "" ]]; then
-     # Relaunch this script as an array
-     exec sbatch --array=1-$nline $0 $SampleList $workindir $inDir $outDir
-fi
+# Loop through numbers 29150595 to 29150661
+for i in {29150595..29150661}; do
+    sample_id="SRR$i"
 
-############################################################
-# Check settings
-echo "Using following arguments:
+    # Run Mark duplicates
+    process_sample $sample_id &
 
-List of Samples:        "$SampleList"
-Working directory:      "$workindir"
-Mapping Files directory (if relative path, from "$workindir") : "$inDir"
-Outfile directory:	"$outDir"
+    # If the number of background jobs reaches the limit, wait for them to finish
+    if [[ $(jobs -r -p | wc -l) -ge $num_parallel ]]; then
+        wait -n  # Wait for any background job to finish before continuing
+    fi
+done
 
-If settings are wrong, please look at instructions and arguments to pass
-"
-
-####################
-# LOAD MODULES
-####################
-ml picard/2.7.0
-
-####################
-# BEGINNING OF SCRIPT
-####################
-
-# Get name of samples for array
-sample=$(sed -n ${SLURM_ARRAY_TASK_ID}p $SampleList)
-
-# Print the name of the sample
-echo "Working on sample:        "$sample
-
-# Change to working directory
-cd $workindir
-
-####################
-# Running base recalibrator
-####################
-
-picard MarkDuplicates \
-                REMOVE_DUPLICATES=TRUE \
-                I=$inDir/$sample.sorted.bam \
-                O=$outDir/$sample.dup.sorted.bam \
-                M=$outDir/$sample.dup.sorted.metrics.txt \
-                CREATE_INDEX=true
-
-####################
-# END
-####################
-echo "The script for sample "$sample" has finished"
+# Wait for all background jobs to finish
+wait
