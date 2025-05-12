@@ -23,7 +23,7 @@ inputfileDir=21_popgen
 inputfile=new.snps.worldwide.calibrated.geno.gz
 outputfileDir=21_popgen
 poplabel=21_popgen/PopLabel.new.txt
-minSNPs=50
+minSNPs=100
 windowsize=50000
 
 #######################################
@@ -54,7 +54,7 @@ echo "Computing pi, Fst and dxy..."
 python $pywindow -f phased --windType coordinate \
                 -w $windowsize -m $minSNPs -T 2 \
                 -g $inputfileDir"/"$inputfile \
-                -o $outputfileDir"/4ind_popgenWindows.w50m50.csv.gz" \
+                -o $outputfileDir"/4ind_popgenWindows.w50m100.csv.gz" \
                 -p Ogasawara -p Guam -p Mainland -p Ryukyu \
                 -p Taiwan -p Philippines -p Manado -p Tulamben -p Maldives \
                 -p PNG -p Solomon_islands -p New_caledonia \
