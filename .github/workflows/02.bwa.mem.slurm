@@ -3,18 +3,15 @@
 #SBATCH -t 30:00:00
 #SBATCH --mem=40G
 #SBATCH -c 2
-#SBATCH --mail-user=jann.zwahlen@oist.jp
-#SBATCH --mail-type=BEGIN,FAIL,END
-#SBATCH --job-name=bwa_mem
-#SBATCH --output=outscripts/cutadapt_%a.out
-#SBATCH --error=outscripts/cutadapt_%a.err
 
 
 ##############################
 # Argument to pass:
-SampleList=${1-AllSamplesExtra.txt}                  # Name of the file with sample names. Default: AllSamples.txt
+SampleList=${1-AllSamples.txt}                  # Name of the file with sample names. Default: AllSamples.txt
 workindir=${2-.}                                # Working directory. Default: Current Directory
-inputfileDir=${3-/bucket/LaudetU/Jann/Salamin_sequences/fastq}                   # Name of the directory with the input mapping files (should be in workindir)
+inputfileDir=${3-./02_trimmed}                  # Name of the directory with the input mapping files (should be in workindir)
+samDir=${4-03_sam}                              # Name of directory for sam files
+bamDir=${5-04_bam}                              # Name of directory for bam files
 ##############################
 
 ############################################################
@@ -23,7 +20,7 @@ nline=$(wc -l $SampleList | awk '{print $1}')
 
 if [[ "$SLURM_ARRAY_TASK_ID" == "" ]]; then
      # Relaunch this script as an array
-     exec sbatch --array=1-$nline $0 $SampleList $workindir $inputfileDir
+     exec sbatch --array=1-$nline%42 $0 $SampleList $workindir $inputfileDir $samDir $bamDir
 fi
 
 ############################################################
@@ -41,6 +38,9 @@ If settings are wrong, please look at instructions and arguments to pass
 # LOAD MODULES
 ####################
 ml bwa.icc/0.7.10
+module load samtools/1.12
+ml picard/2.7.0
+
 
 ####################
 # BEGINNING OF SCRIPT
@@ -52,15 +52,45 @@ sample=$(sed -n ${SLURM_ARRAY_TASK_ID}p $SampleList)
 # Print the name of the sample
 echo "Working on sample:        "$sample
 
+mkdir -p "$samDir" "$bamDir" "bwalogs"
 ####################
 # Align reads to reference
 ####################
 
-bwa mem -M -t 10 \
+bwa mem -M -t 2 \
 Aclarkii_genome.fasta \
-02_cutQual/${sample}_trimmed_sickle_R1.fastq.gz 02_cutQual/${sample}_trimmed_sickle_R2.fastq.gz \
+$inputfileDir/${sample}_1_trimmed_paired.fastq.gz $inputfileDir/${sample}_2_trimmed_paired.fastq.gz \
 > bwalogs/bwa.${sample}.err \
-> 03_sam/${sample}.sam
+> $samDir/${sample}.sam
+
+####################
+# Convert sam to bam
+####################
+
+samtools view -bo $bamDir/${sample}.bam $samDir/${sample}.sam
+
+rm $samDir/${sample}.sam
+
+mkdir -p ${workindir}/04_sort.dup
+
+
+###################
+# Sort sam
+###################
+mkdir -p 05_bam.sort
+
+picard SortSam \
+                I=$bamDir/$sample.bam \
+                O=05_bam.sort/$sample.sorted.bam \
+                SORT_ORDER=coordinate
+
+####################
+# Index BAM
+####################
+
+samtools index 05_bam.sort/$sample.sorted.bam
+
+rm $bamDir/$sample.bam
 
 ####################
 # END OF SCRIPT
