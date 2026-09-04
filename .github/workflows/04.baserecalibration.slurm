@@ -12,7 +12,7 @@ SampleList=${1-AllSamples.txt}                          # Name of the file with 
 workindir=${2-.}                                        # Working directory. Default: Current Directory
 inputfileDir=${3-./07_bam.dup.rg}                       # Name of the directory with the input mapping files (should be in workindir).
 variantdir=${4-./14_called.variants.second.combined}    
-outdir=${5-08_calibrated.variants}
+caldir=${5-./08_calibrated.variants}
 
 ### Relaunch the script as array with the number of jobs corresponding to the number of files
 nline=$(wc -l $SampleList | awk '{print $1}')
