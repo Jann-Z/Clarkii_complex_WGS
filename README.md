@@ -1,2 +1,3 @@
-# WGS
-WGS of A. clarkii from Ogasawara, Japan and Guam.
+Data analysis scripts for the manuscript: "One species or several? Genomic evidence for deep divergence within the widely distributed anemonefish Amphiprion clarkii species complex"
+
+Sequences are available from: 
