@@ -12,17 +12,10 @@
 ml java-jdk/17
 
 ReferenceGenome=Aclarkii_genome.fasta
-Dir=10.genotyped_variants                   
+Dir=10_genotyped.variants                   
                   
-######################
-# Follow the filtering steps recommended by GATK
-######################
-# mkdir -p 4B_FilteredCalling/GATK_RecStandards
-
 
 ### Select SNPs only
-
-
 /apps/gatk-4.4.0.0/gatk SelectVariants \
         -R Aclarkii_genome.fasta \
         -V $Dir/all.genotyped.vcf.gz \
@@ -31,7 +24,6 @@ Dir=10.genotyped_variants
         -O $Dir/all.snps.vcf.gz
 
 ### filter SNPs
-
 /apps/gatk-4.4.0.0/gatk VariantFiltration \
      -V $Dir"/all.snps.vcf.gz" \
      -filter "QD < 2.0" --filter-name "QD2" \
@@ -42,44 +34,10 @@ Dir=10.genotyped_variants
      -filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8" \
      -O $Dir"/all.snps.with.filter.1st.vcf.gz"
 
-
 # Subset SNPs that pass all the filters
 /apps/gatk-4.4.0.0/gatk SelectVariants \
         --exclude-filtered \
-        -V $outputfileDir"/all.snps.with.filter.1st.vcf.gz" \
-        -O $outputfileDir"/all.snps.filtered.1st.vcf.gz"
+        -V $Dir"/all.snps.with.filter.1st.vcf.gz" \
+        -O $Dir"/all.snps.filtered.1st.vcf.gz"
 
-
-
-
-
-
-
-
-
-
-
-
-
-#!/bin/bash
-#SBATCH --partition=compute
-#SBATCH -t 12:00:00
-#SBATCH --mem=50G
-#SBATCH -c 20  #run time not reduced with more than 2cpus
-#SBATCH --job-name=select_snps
-#SBATCH --output=select_snps.2.out
-
-
-
-ReferenceGenome=Aclarkii_genome.fasta
-Dir=10.genotyped_variants
-
-ml java-jdk/17
-
-/apps/gatk-4.4.0.0/gatk SelectVariants \
-        -R Aclarkii_genome.fasta \
-        -V $Dir/all.genotyped.vcf.gz \
-        --select-type-to-include SNP \
-        --ignore-non-ref-in-types \
-        -O $outputfileDir/all.snps.vcf.gz
 
