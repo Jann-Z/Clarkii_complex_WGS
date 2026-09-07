@@ -1,0 +1,11 @@
+as for the main project:
+1) trimming - trimmomatic
+2) mapping - bwa-mem
+3) transform to bam - sam2bam
+4) index bams - samtools index
+5) mark duplicates - picrad MarkDuplicates
+6) sort & index bams - samtools sort & index
+7) add and replace read groups - picard AddOrReplaceReadGroups
+
+
+
