@@ -10,7 +10,7 @@
 VCF_DIR="08_called.variants"
 
 # Set the path to the output directory
-OUTPUT_DIR="09_called.variants_combined"
+OUTPUT_DIR="09_variants.combined"
 
 # Set the output file name
 OUTPUT_FILE="$OUTPUT_DIR/all.combined.g.vcf.gz"
