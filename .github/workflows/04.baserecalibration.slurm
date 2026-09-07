@@ -45,12 +45,12 @@ cd $workindir
                 -O ${caldir}/$sample.bqsr.report
 
 ### Running base recalibrator
-mkdir -p ${workindir}/09_calibrated_bam
+mkdir -p ${workindir}/15_calibrated_bam_all_final
 
 /apps/gatk-4.4.0.0/gatk ApplyBQSR \
                 -I $inputfileDir/$sample.sorted.dup.rg.bam \
                 -R ${workindir}/Aclarkii_genome.fasta \
                 --bqsr-recal-file ${caldir}/$sample.bqsr.report \
-                -O ${workindir}/09_calibrated_bam/$sample.calibrated.bam
+                -O ${workindir}/15_calibrated_bam_all_final/$sample.calibrated.bam
 
 
