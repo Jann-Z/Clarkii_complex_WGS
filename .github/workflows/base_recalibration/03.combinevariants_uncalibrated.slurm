@@ -7,10 +7,10 @@
 #SBATCH --output=combine.GVCFs.new.%j.out
 
 # Set the path to the directory containing your raw VCF files
-VCF_DIR="uncalibrated_variants"
+VCF_DIR="08_called.variants"
 
 # Set the path to the output directory
-OUTPUT_DIR="uncalibrated_variants_combined"
+OUTPUT_DIR="09_called.variants_combined"
 
 # Set the output file name
 OUTPUT_FILE="$OUTPUT_DIR/all.combined.g.vcf.gz"
