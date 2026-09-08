@@ -12,7 +12,7 @@ ml bcftools
 bcftools concat \
     -f filelist.txt \
     -Oz \
-    -o all.chr.allsamples.vcf.gz
+    -o allchr.allsamples.vcf.gz
 
-bcftools index -t all.chr.allsamples.vcf.gz
+bcftools index -t allchr.allsamples.vcf.gz
 
