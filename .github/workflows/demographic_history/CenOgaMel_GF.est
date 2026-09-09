@@ -1,0 +1,23 @@
+// Priors and rules file
+// *********************
+[PARAMETERS]
+//#isInt? #name #dist.#min #max
+//all N are in number of haploid individuals
+1 OGA unif 100 500000 output
+1 MEL unif 100 500000 output
+1 CEN unif 100 500000 output
+
+1 TDIV2 unif 100 60060 output bounded
+
+0 T1Mig10 logunif 0.00000001 0.001 output
+0 T1Mig20 logunif 0.00000001 0.001 output
+0 T1Mig21 logunif 0.00000001 0.001 output
+0 T1Mig01 logunif 0.00000001 0.001 output
+0 T1Mig02 logunif 0.00000001 0.001 output
+0 T1Mig12 logunif 0.00000001 0.001 output
+0 T2Mig21 logunif 0.00000001 0.001 output
+0 T2Mig12 logunif 0.00000001 0.001 output
+
+0 MUTRATE logunif 1e-9 1e-6 output
+
+[COMPLEX PARAMETERS]
